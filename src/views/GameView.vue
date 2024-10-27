@@ -111,25 +111,67 @@
     </div>
 
     <!-- New button to toggle bank request popup -->
-    <button @click="toggleBankRequestPopup" class="btn btn-secondary w-full">
-      Bank Requests ({{ bankRequests.length }})
-    </button>
+    <div class="w-full flex gap-2 justify-center mt-8">
+      <button @click="toggleBankRequestPopup" class="btn btn-primary h-24 w-1/2 text-white rounded-full flex flex-col">
+        Bank Requests
+        <span class="badge badge-neutral">{{ bankRequests.length }}</span>
+      </button>
+
+      <!-- New button to request money from bank -->
+      <button @click="showRequestMoneyPopup = true" class="btn btn-primary h-24 w-1/2 text-white rounded-full">
+        Bank
+      </button>
+    </div>
+    <div class="w-full flex gap-2 justify-center mt-8">
+      <button @click="payIncomePax" class="btn btn-error h-24 w-1/2 text-white rounded-full flex flex-col">
+        Income Tax
+      </button>
+
+      <!-- New button to request money from bank -->
+      <button @click="getPassGo" class="btn btn-warning h-24 w-1/2 text-white rounded-full">
+        Pass Go
+      </button>
+    </div>
 
     <!-- New popup for bank requests -->
     <div v-if="showBankRequestPopup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white p-6 rounded-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
+      <div class=" bg-[#161b20] p-6 rounded-lg max-w-md w-full m-3 max-h-[80vh] overflow-y-auto">
         <h2 class="text-xl font-bold mb-4">Bank Requests</h2>
+
         <div v-if="bankRequests.length === 0" class="text-center text-gray-500">
           No pending bank requests
         </div>
-        <div v-for="request in bankRequests" :key="request.id" class="mb-4 p-4 border rounded-lg">
-          <p><strong>{{ getPlayerName(request.player_id) }}</strong> requests ${{ request.amount }}</p>
-          <div class="flex justify-between mt-2">
-            <button @click="respondToBankRequest(request.id, true)" class="btn btn-sm btn-success">Approve</button>
-            <button @click="respondToBankRequest(request.id, false)" class="btn btn-sm btn-error">Reject</button>
+        <div v-for="request in bankRequests" :key="request.id"
+          class="mb-4 border border-neutral rounded-lg flex items-center justify-between">
+          <p class="p-4"><strong>{{ getPlayerName(request.player_id) }}</strong> requests ${{ request.amount }}</p>
+          <div class="flex justify-between gap-2 h-full mr-2">
+            <button @click="respondToBankRequest(request.id, true)" class="btn btn-sm btn-success h-full aspect-square">
+              <Check class="h-4 w-4" />
+            </button>
+            <button @click="respondToBankRequest(request.id, false)" class="btn btn-sm btn-error h-full aspect-square">
+              <X class="h-4 w-4" />
+            </button>
           </div>
         </div>
         <button @click="toggleBankRequestPopup" class="btn btn-neutral w-full mt-4">Close</button>
+      </div>
+    </div>
+
+    <!-- New popup for requesting money from bank -->
+    <div v-if="showRequestMoneyPopup"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-[#161b20] p-6 rounded-lg max-w-md w-full">
+        <h2 class="text-xl font-bold mb-4">Request Money from Bank</h2>
+        <div class="mb-4">
+          <label for="requestAmount" class="block text-sm font-medium text-gray-700">Amount</label>
+          <input type="number" id="requestAmount" v-model="requestAmount"
+            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            placeholder="Enter amount" />
+        </div>
+        <div class="flex justify-end space-x-3">
+          <button @click="showRequestMoneyPopup = false" class="btn btn-neutral">Cancel</button>
+          <button @click="submitBankRequest" class="btn btn-primary">Submit Request</button>
+        </div>
       </div>
     </div>
 
@@ -145,12 +187,14 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 // import { socket } from '../socket';
 import { io } from "socket.io-client";
 import { Delete } from 'lucide-vue-next';
 import { Check } from 'lucide-vue-next';
+import { X } from 'lucide-vue-next';
+import { useLocalStorage } from '@vueuse/core';
 
 
 const route = useRoute();
@@ -164,17 +208,30 @@ const playerJoined = ref(false);
 const currentPlayerId = ref("");
 const selectedPlayer = ref("");
 const amount = ref("");
+const playerSid = useLocalStorage("playerSid", "");
 
 const payDialog = ref(false);
-const bankRequests = ref([]);
 const showBankRequestPopup = ref(false);
+const showRequestMoneyPopup = ref(false);
+const requestAmount = ref('');
 
 const playerData = computed(() => {
   return roomData.value.players.find(player => player.id === currentPlayerId.value);
 });
 
+const bankRequests = computed(() => {
+  return Object.entries(roomData.value.bank_requests).map(([id, request]) => ({
+    id,
+    ...request
+  }));
+});
 
-const socket = io(import.meta.env.VITE_SERVER_URL,);
+
+const socket = io(import.meta.env.VITE_SERVER_URL, {
+  auth: {
+    playerSid: playerSid.value || ""
+  }
+});
 
 
 const setAlertMessage = (message) => {
@@ -192,6 +249,7 @@ socket.on("connect", () => {
   currentPlayerId.value = socket.id;
   connection.connected = true;
   socket.emit("join", roomId);
+  playerSid.value = socket.id;
 });
 
 socket.on("roomData", (data) => {
@@ -286,20 +344,44 @@ const respondToBankRequest = (requestId, approved) => {
   socket.emit('respondToBankRequest', {
     room: roomData.value.id,
     request_id: requestId,
-    player_id: currentPlayer.value.id,
+    player_id: currentPlayerId.value,
     approved: approved
   });
 };
 
-const requestFromBank = () => {
-  const amount = prompt('Enter the amount to request from the bank:');
-  if (amount && !isNaN(amount)) {
+const submitBankRequest = () => {
+  if (requestAmount.value && !isNaN(requestAmount.value)) {
     socket.emit('requestFromBank', {
       room: roomData.value.id,
-      player_id: currentPlayer.value.id,
-      amount: parseInt(amount)
+      player_id: currentPlayerId.value,
+      amount: parseInt(requestAmount.value)
     });
+    showRequestMoneyPopup.value = false;
+    requestAmount.value = '';
+    setAlertMessage('Bank request submitted');
+  } else {
+    setAlertMessage('Please enter a valid amount');
   }
+};
+
+const getPassGo = () => {
+  // add request to bank for roomData.passGoMoney
+  socket.emit("requestFromBank", {
+    room: roomData.value.id,
+    player_id: currentPlayerId.value,
+    amount: roomData.value.passGoMoney
+  });
+};
+
+const payIncomePax = () => {
+  // send money to bank for 10% of players money or 200$ whichever is less
+  const amount = Math.min(playerData.value.money * 0.1, 200);
+  socket.emit("pay", {
+    room: roomData.value.id,
+    amount: amount,
+    to: "bank",
+    from: currentPlayerId.value,
+  });
 };
 
 onMounted(() => {
@@ -312,35 +394,37 @@ onMounted(() => {
       passGoMoney: 200,
       creator: true,
       players: [],
+      bank_requests: [],
     };
   }
 
   socket.on('newBankRequest', (request) => {
-    bankRequests.value.push(request);
+    // bankRequests.push(request);
+    showBankRequestPopup.value = true;
   });
 
   socket.on('bankRequestApproved', (request) => {
-    const index = bankRequests.value.findIndex(r => r.id === request.id);
-    if (index !== -1) {
-      bankRequests.value.splice(index, 1);
-    }
-    alert(`Bank request for $${request.amount} has been approved for ${getPlayerName(request.player_id)}`);
+    setAlertMessage(`Bank request for $${request.amount} has been approved for ${getPlayerName(request.player_id)}`);
   });
 
   socket.on('bankRequestRejected', (request) => {
-    const index = bankRequests.value.findIndex(r => r.id === request.id);
-    if (index !== -1) {
-      bankRequests.value.splice(index, 1);
-    }
-    alert(`Bank request for $${request.amount} has been rejected for ${getPlayerName(request.player_id)}`);
+    setAlertMessage(`Bank request for $${request.amount} has been rejected for ${getPlayerName(request.player_id)}`);
   });
 
   socket.on('bankRequestUpdated', (request) => {
-    const index = bankRequests.value.findIndex(r => r.id === request.id);
+    const index = bankRequests.findIndex(r => r.id === request.id);
+    showBankRequestPopup.value = true;
     if (index !== -1) {
-      bankRequests.value[index] = request;
+      bankRequests[index] = request;
     }
   });
+});
+
+onUnmounted(() => {
+  socket.off('newBankRequest');
+  socket.off('bankRequestApproved');
+  socket.off('bankRequestRejected');
+  socket.off('bankRequestUpdated');
 });
 </script>
 
