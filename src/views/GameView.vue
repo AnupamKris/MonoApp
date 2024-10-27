@@ -1,11 +1,12 @@
 <template>
   <div class="toast toast-right toast-top">
-    <div class="badge badge-neutral"
-      :class="{ 'badge-success': connection.connected, 'badge-error': !connection.connected }">
+    <div class="badge badge-neutral" :class="{
+      'badge-success': connection.connected,
+      'badge-error': !connection.connected,
+    }">
       {{ connection.connected ? "Connected" : "Disconnected" }}
     </div>
   </div>
-
 
   <!-- Creator's view for setting up the room -->
   <div v-if="!roomData.started && creator && !roomData.created"
@@ -19,7 +20,9 @@
     </div>
     <input type="text" v-model="roomData.passGoMoney" class="input input-bordered w-full text-center" />
 
-    <button @click="createRoom" class="btn btn-primary w-full mt-5">Create Room</button>
+    <button @click="createRoom" class="btn btn-primary w-full mt-5">
+      Create Room
+    </button>
   </div>
   <!-- Player name input for joining the game -->
   <div v-else-if="!playerJoined" class="w-full h-full flex flex-col items-center max-w-sm mx-auto p-10">
@@ -27,31 +30,28 @@
       <div class="label-text">Enter your name</div>
     </div>
     <input type="text" v-model="playerName" class="input input-bordered w-full text-center" />
-    <button @click="joinGame" class="btn btn-primary w-full mt-5">Join Game</button>
+    <button @click="joinGame" class="btn btn-primary w-full mt-5">
+      Join Game
+    </button>
   </div>
-
-
 
   <div class="w-full h-full flex flex-col items-center max-w-sm mx-auto p-10"
     v-else-if="roomData.created && !roomData.started">
-
     <div v-for="player in roomData.players" :key="player.name" class="w-full mt-5">
       <div class="flex justify-between items-center border rounded-lg p-2 py-3 input-bordered">
         <span>{{ player.name }}</span>
         <span>${{ player.money }}</span>
       </div>
     </div>
-    <button @click="startGame" class="btn btn-primary w-full mt-5" v-if="!roomData.started && creator">Start
-      Game</button>
-    <div v-else class="text-xs mt-5">
-      Waiting for other players...
-    </div>
+    <button @click="startGame" class="btn btn-primary w-full mt-5" v-if="!roomData.started && creator">
+      Start Game
+    </button>
+    <div v-else class="text-xs mt-5">Waiting for other players...</div>
   </div>
-
 
   <!-- Game view after joining -->
   <div v-else-if="roomData.created" class="w-full h-full flex flex-col items-center max-w-sm mx-auto p-10">
-    <div class="w-full  flex justify-between items-center">
+    <div class="w-full flex justify-between items-center">
       <p class="text-sm">Balance</p>
       <p class="text-xl rounded-md p-2 bg-neutral">${{ playerData?.money }}</p>
     </div>
@@ -73,28 +73,48 @@
       <div class="w-full h-full flex flex-col items-center p-5 gap-3 pt-14">
         <div class="grid grid-cols-2 gap-2 w-5/6">
           <div @click="selectedPlayer = '923457adfgkshj'"
-            class="w-full border border-neutral p-2 rounded-md text-center h-fit"
-            :class="selectedPlayer === '923457adfgkshj' ? 'bg-primary text-black' : ''">
+            class="w-full border border-neutral p-2 rounded-md text-center h-fit" :class="selectedPlayer === '923457adfgkshj' ? 'bg-primary text-black' : ''
+              ">
             <span class="text-sm text-center w-full">Bank</span>
           </div>
-          <div v-for="player in roomData.players.filter(player => player.id !== currentPlayerId)" :key="player.name"
-            @click="selectedPlayer = player.id" class="w-full border border-neutral p-2 rounded-md text-center h-fit"
+          <div v-for="player in roomData.players.filter(
+            (player) => player.id !== currentPlayerId
+          )" :key="player.name" @click="selectedPlayer = player.id"
+            class="w-full border border-neutral p-2 rounded-md text-center h-fit"
             :class="selectedPlayer === player.id ? 'bg-primary text-black' : ''">
             <span class="text-sm text-center w-full">{{ player.name }}</span>
           </div>
         </div>
         <input type="text" v-model="amount" class="input input-bordered text-center mt-auto min-h-14 w-5/6" readonly />
 
-        <div class="grid grid-cols-3 w-5/6 gap-2 justify-items-center ">
-          <button class="btn btn-neutral h-full w-full aspect-square text-2xl" @click="amount = amount + '1'">1</button>
-          <button class="btn btn-neutral h-full w-full aspect-square text-2xl" @click="amount = amount + '2'">2</button>
-          <button class="btn btn-neutral h-full w-full aspect-square text-2xl" @click="amount = amount + '3'">3</button>
-          <button class="btn btn-neutral h-full w-full aspect-square text-2xl" @click="amount = amount + '4'">4</button>
-          <button class="btn btn-neutral h-full w-full aspect-square text-2xl" @click="amount = amount + '5'">5</button>
-          <button class="btn btn-neutral h-full w-full aspect-square text-2xl" @click="amount = amount + '6'">6</button>
-          <button class="btn btn-neutral h-full w-full aspect-square text-2xl" @click="amount = amount + '7'">7</button>
-          <button class="btn btn-neutral h-full w-full aspect-square text-2xl" @click="amount = amount + '8'">8</button>
-          <button class="btn btn-neutral h-full w-full aspect-square text-2xl" @click="amount = amount + '9'">9</button>
+        <div class="grid grid-cols-3 w-5/6 gap-2 justify-items-center">
+          <button class="btn btn-neutral h-full w-full aspect-square text-2xl" @click="amount = amount + '1'">
+            1
+          </button>
+          <button class="btn btn-neutral h-full w-full aspect-square text-2xl" @click="amount = amount + '2'">
+            2
+          </button>
+          <button class="btn btn-neutral h-full w-full aspect-square text-2xl" @click="amount = amount + '3'">
+            3
+          </button>
+          <button class="btn btn-neutral h-full w-full aspect-square text-2xl" @click="amount = amount + '4'">
+            4
+          </button>
+          <button class="btn btn-neutral h-full w-full aspect-square text-2xl" @click="amount = amount + '5'">
+            5
+          </button>
+          <button class="btn btn-neutral h-full w-full aspect-square text-2xl" @click="amount = amount + '6'">
+            6
+          </button>
+          <button class="btn btn-neutral h-full w-full aspect-square text-2xl" @click="amount = amount + '7'">
+            7
+          </button>
+          <button class="btn btn-neutral h-full w-full aspect-square text-2xl" @click="amount = amount + '8'">
+            8
+          </button>
+          <button class="btn btn-neutral h-full w-full aspect-square text-2xl" @click="amount = amount + '9'">
+            9
+          </button>
           <button class="btn btn-neutral h-full w-full aspect-square text-2xl" @click="amount = amount.slice(0, -1)">
             <Delete class="h-8 w-8" />
           </button>
@@ -106,8 +126,6 @@
           </button>
         </div>
       </div>
-
-
     </div>
 
     <!-- New button to toggle bank request popup -->
@@ -133,17 +151,32 @@
       </button>
     </div>
 
+    <!-- New button to view transactions -->
+    <button @click="showTransactionsPopup = true" class="btn btn-info h-24 w-full text-white rounded-full mt-8">
+      View Transactions
+    </button>
+
+
+
     <!-- New popup for bank requests -->
     <div v-if="showBankRequestPopup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class=" bg-[#161b20] p-6 rounded-lg max-w-md w-full m-3 max-h-[80vh] overflow-y-auto">
+      <div class="bg-[#161b20] p-6 rounded-lg max-w-md w-full m-3 max-h-[80vh] overflow-y-auto">
         <h2 class="text-xl font-bold mb-4">Bank Requests</h2>
 
         <div v-if="bankRequests.length === 0" class="text-center text-gray-500">
           No pending bank requests
         </div>
-        <div v-for="request in bankRequests" :key="request.id"
-          class="mb-4 border border-neutral rounded-lg flex items-center justify-between">
-          <p class="p-4"><strong>{{ getPlayerName(request.player_id) }}</strong> requests ${{ request.amount }}</p>
+        <div v-for="request in bankRequests.filter(
+          (request) =>
+            !request.approvals.includes(currentPlayerId) &&
+            !request.rejections.includes(currentPlayerId) &&
+            request.player_id !== currentPlayerId
+        )" :key="request.id" class="mb-4 border border-neutral rounded-lg flex items-center justify-between">
+          <p class="p-4">
+            <strong>{{ getPlayerName(request.player_id) }}</strong> requests ${{
+              request.amount
+            }}
+          </p>
           <div class="flex justify-between gap-2 h-full mr-2">
             <button @click="respondToBankRequest(request.id, true)" class="btn btn-sm btn-success h-full aspect-square">
               <Check class="h-4 w-4" />
@@ -153,7 +186,9 @@
             </button>
           </div>
         </div>
-        <button @click="toggleBankRequestPopup" class="btn btn-neutral w-full mt-4">Close</button>
+        <button @click="toggleBankRequestPopup" class="btn btn-neutral w-full mt-4">
+          Close
+        </button>
       </div>
     </div>
 
@@ -169,12 +204,45 @@
             placeholder="Enter amount" />
         </div>
         <div class="flex justify-end space-x-3">
-          <button @click="showRequestMoneyPopup = false" class="btn btn-neutral">Cancel</button>
-          <button @click="submitBankRequest" class="btn btn-primary">Submit Request</button>
+          <button @click="showRequestMoneyPopup = false" class="btn btn-neutral">
+            Cancel
+          </button>
+          <button @click="submitBankRequest" class="btn btn-primary">
+            Submit Request
+          </button>
         </div>
       </div>
     </div>
 
+    <!-- New popup for viewing transactions -->
+    <div v-if="showTransactionsPopup"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-[#161b20] p-6 rounded-lg max-w-md w-full m-3 max-h-[80vh] overflow-y-auto">
+        <h2 class="text-xl font-bold mb-4">Transaction History</h2>
+        <div v-if="transactions.length === 0" class="text-center text-gray-500">
+          No transactions yet
+        </div>
+        <div v-else>
+          <div v-for="(transaction, index) in transactions" :key="index"
+            class="mb-2 border border-neutral rounded-lg p-2">
+            <p>
+
+              <strong>{{ transaction.from_player_id === currentPlayerId ? "You" :
+                getPlayerName(transaction.from_player_id) }}</strong> paid
+              <strong>{{ transaction.to_player_id === currentPlayerId ? "You" :
+                getPlayerName(transaction.to_player_id) }}</strong>
+            </p>
+            <p>Amount: ${{ transaction.amount }}</p>
+            <p class="text-xs text-gray-500">
+              {{ new Date(transaction.timestamp).toLocaleString() }}
+            </p>
+          </div>
+        </div>
+        <button @click="showTransactionsPopup = false" class="btn btn-neutral w-full mt-4">
+          Close
+        </button>
+      </div>
+    </div>
   </div>
 
   <div
@@ -182,57 +250,68 @@
     v-if="alertMessage">
     {{ alertMessage }}
   </div>
-
-
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onUnmounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, reactive, onMounted, onUnmounted } from "vue";
+import { useRoute } from "vue-router";
 // import { socket } from '../socket';
 import { io } from "socket.io-client";
-import { Delete } from 'lucide-vue-next';
-import { Check } from 'lucide-vue-next';
-import { X } from 'lucide-vue-next';
-import { useLocalStorage } from '@vueuse/core';
-
+import { Delete } from "lucide-vue-next";
+import { Check } from "lucide-vue-next";
+import { X } from "lucide-vue-next";
+import { useLocalStorage } from "@vueuse/core";
 
 const route = useRoute();
 const roomId = route.params.roomId;
-const creator = route.query.creator === 'true';
+const creator = route.query.creator === "true";
 
 const alertMessage = ref("");
 const roomData = ref({});
 const playerName = useLocalStorage("playerName", "");
+const userId = useLocalStorage("userId", "");
 const playerJoined = ref(false);
-const currentPlayerId = ref("");
+const currentPlayerId = computed(() => userId.value);
 const selectedPlayer = ref("");
 const amount = ref("");
-const playerSid = useLocalStorage("playerSid", "");
 
 const payDialog = ref(false);
 const showBankRequestPopup = ref(false);
 const showRequestMoneyPopup = ref(false);
-const requestAmount = ref('');
+const requestAmount = ref("");
 
 const playerData = computed(() => {
-  return roomData.value.players.find(player => player.id === currentPlayerId.value);
+  return roomData.value.players.find(
+    (player) => player.id === currentPlayerId.value
+  );
 });
 
 const bankRequests = computed(() => {
   return Object.entries(roomData.value.bank_requests).map(([id, request]) => ({
     id,
-    ...request
+    ...request,
   }));
 });
 
+const showTransactionsPopup = ref(false);
+const transactions = computed(() => {
+  return Object.entries(roomData.value.transactions)
+    .map(([id, transaction]) => ({
+      id,
+      ...transaction,
+    }))
+    .filter(
+      (transaction) =>
+        transaction.from_player_id === currentPlayerId.value ||
+        transaction.to_player_id === currentPlayerId.value
+    );
+});
 
 const socket = io(import.meta.env.VITE_SERVER_URL, {
   auth: {
-    playerSid: playerSid.value || ""
-  }
+    userId: userId.value,
+  },
 });
-
 
 const setAlertMessage = (message) => {
   alertMessage.value = message;
@@ -246,10 +325,8 @@ const connection = reactive({
 });
 
 socket.on("connect", () => {
-  currentPlayerId.value = socket.id;
   connection.connected = true;
-  socket.emit("join", roomId);
-  playerSid.value = socket.id;
+  socket.emit("join", { roomId, userId: userId.value });
 });
 
 socket.on("roomData", (data) => {
@@ -271,6 +348,8 @@ socket.on("newRoomData", (data) => {
 });
 
 socket.on("paymentRecieved", (data) => {
+  console.log(data, "PAYMENT RECIEVED");
+
   setAlertMessage(`${data.from} paid you ${data.amount}`);
 });
 
@@ -294,8 +373,9 @@ const joinGame = () => {
   socket.emit("joinGame", {
     room: roomId,
     player_name: playerName.value,
+    userId: userId.value,
   });
-  playerJoined.value = true; 1
+  playerJoined.value = true;
 };
 
 const startGame = () => {
@@ -303,7 +383,7 @@ const startGame = () => {
 };
 
 const pay = () => {
-  console.log(amount.value, selectedPlayer.value)
+  console.log(amount.value, selectedPlayer.value);
   if (amount.value === "") {
     setAlertMessage("Please enter an amount");
     return;
@@ -323,7 +403,7 @@ const pay = () => {
     room: roomId,
     amount: amount.value,
     to: selectedPlayer.value,
-    from: currentPlayerId.value,
+    from: userId.value,
   });
 
   amount.value = "";
@@ -336,51 +416,49 @@ const toggleBankRequestPopup = () => {
 };
 
 const getPlayerName = (playerId) => {
-  const player = roomData.value.players.find(p => p.id === playerId);
-  return player ? player.name : 'Unknown Player';
+  const player = roomData.value.players.find((p) => p.id === playerId);
+  return player ? player.name : "Unknown Player";
 };
 
 const respondToBankRequest = (requestId, approved) => {
-  socket.emit('respondToBankRequest', {
+  socket.emit("respondToBankRequest", {
     room: roomData.value.id,
     request_id: requestId,
     player_id: currentPlayerId.value,
-    approved: approved
+    approved: approved,
   });
 };
 
 const submitBankRequest = () => {
   if (requestAmount.value && !isNaN(requestAmount.value)) {
-    socket.emit('requestFromBank', {
+    socket.emit("requestFromBank", {
       room: roomData.value.id,
-      player_id: currentPlayerId.value,
-      amount: parseInt(requestAmount.value)
+      player_id: userId.value,
+      amount: parseInt(requestAmount.value),
     });
     showRequestMoneyPopup.value = false;
-    requestAmount.value = '';
-    setAlertMessage('Bank request submitted');
+    requestAmount.value = "";
+    setAlertMessage("Bank request submitted");
   } else {
-    setAlertMessage('Please enter a valid amount');
+    setAlertMessage("Please enter a valid amount");
   }
 };
 
 const getPassGo = () => {
-  // add request to bank for roomData.passGoMoney
   socket.emit("requestFromBank", {
     room: roomData.value.id,
-    player_id: currentPlayerId.value,
-    amount: roomData.value.passGoMoney
+    player_id: userId.value,
+    amount: roomData.value.passGoMoney,
   });
 };
 
 const payIncomePax = () => {
-  // send money to bank for 10% of players money or 200$ whichever is less
   const amount = Math.min(playerData.value.money * 0.1, 200);
   socket.emit("pay", {
     room: roomData.value.id,
     amount: amount,
     to: "bank",
-    from: currentPlayerId.value,
+    from: userId.value,
   });
 };
 
@@ -398,33 +476,45 @@ onMounted(() => {
     };
   }
 
-  socket.on('newBankRequest', (request) => {
+  // request full screen
+
+
+
+
+  socket.on("newBankRequest", (request) => {
     // bankRequests.push(request);
-    showBankRequestPopup.value = true;
-  });
-
-  socket.on('bankRequestApproved', (request) => {
-    setAlertMessage(`Bank request for $${request.amount} has been approved for ${getPlayerName(request.player_id)}`);
-  });
-
-  socket.on('bankRequestRejected', (request) => {
-    setAlertMessage(`Bank request for $${request.amount} has been rejected for ${getPlayerName(request.player_id)}`);
-  });
-
-  socket.on('bankRequestUpdated', (request) => {
-    const index = bankRequests.findIndex(r => r.id === request.id);
-    showBankRequestPopup.value = true;
-    if (index !== -1) {
-      bankRequests[index] = request;
+    if (bankRequests.value.filter(
+      (request) =>
+        !request.approvals.includes(currentPlayerId.value) &&
+        !request.rejections.includes(currentPlayerId.value) &&
+        request.player_id !== currentPlayerId.value
+    ).length > 0) {
+      showBankRequestPopup.value = true;
     }
   });
+
+  socket.on("bankRequestApproved", (request) => {
+    setAlertMessage(
+      `Bank request for $${request.amount
+      } has been approved for ${getPlayerName(request.player_id)}`
+    );
+  });
+
+  socket.on("bankRequestRejected", (request) => {
+    setAlertMessage(
+      `Bank request for $${request.amount
+      } has been rejected for ${getPlayerName(request.player_id)}`
+    );
+  });
+
+  socket.on("bankRequestUpdated", (request) => { });
 });
 
 onUnmounted(() => {
-  socket.off('newBankRequest');
-  socket.off('bankRequestApproved');
-  socket.off('bankRequestRejected');
-  socket.off('bankRequestUpdated');
+  socket.off("newBankRequest");
+  socket.off("bankRequestApproved");
+  socket.off("bankRequestRejected");
+  socket.off("bankRequestUpdated");
 });
 </script>
 

@@ -23,6 +23,13 @@ const alertMessage = ref("");
 const roomId = ref("");
 const generatedRoomId = ref(uuidv4().slice(0, 5));
 const router = useRouter();
+const userId = useLocalStorage("userId", uuidv4());
+
+onMounted(() => {
+  if (userId.value === "") {
+    userId.value = uuidv4();
+  }
+});
 
 
 const setAlertMessage = (message) => {

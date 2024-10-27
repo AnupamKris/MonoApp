@@ -13,3 +13,7 @@
 #app {
   height: 100vh;
 }
+
+body {
+  overflow: hidden;
+}
